@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>أحبك ❤️</title>
+  <meta name="description" content="صفحة لطيفة تُظهر كلمة أحبك مع قلوب متطايرة" />
+  <style>
+    :root{
+      --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
+      --txt:#ffffff; --accent:#ff4d6d; --accent2:#ffd6e0;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial,
+      "Noto Naskh Arabic UI", "Noto Kufi Arabic", sans-serif;
+      color:var(--txt);
+      background: radial-gradient(1200px 800px at 20% 10%, #1b183f 0%, transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      overflow:hidden; /* نخلي الخلفية نظيفة */
+    }
+
+    .container{
+      position:relative; height:100%; width:100%; display:grid;
+      place-items:center; text-align:center; padding:24px;
+    }
+
+    h1{
+      margin:0; font-size: clamp(40px, 8vw, 96px); letter-spacing:1px;
+      line-height:1.05; text-shadow: 0 6px 20px rgba(255,77,109,.35);
+      font-weight:800;
+    }
+
+    .heart-big{ font-size: clamp(32px, 6vw, 64px); display:inline-block;
+      animation: pulse 1.2s ease-in-out infinite; filter:drop-shadow(0 8px 24px rgba(255,77,109,.45));
+    }
+
+    .sub{ opacity:.9; margin-top:12px; font-size:clamp(14px,2.6vw,20px)}
+
+    .from{ opacity:.85; margin-top:6px; font-size:clamp(12px,2.4vw,18px)}
+
+    .controls{ position:fixed; inset-inline:0; bottom:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:0 12px}
+
+    button{
+      padding:10px 14px; border-radius:16px; border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color:#fff; backdrop-filter: blur(6px);
+      cursor:pointer; font-weight:600; letter-spacing:.2px;
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    button:hover{ transform: translateY(-2px); background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.28)}
+
+    /* قلوب متطايرة */
+    .hearts{ position:absolute; inset:0; pointer-events:none; overflow:hidden }
+
+    .heart{
+      position:absolute; font-size:14px; color: var(--accent);
+      text-shadow: 0 6px 16px rgba(255,77,109,.6);
+      opacity:0; transform: translate(-50%, 20px) scale(.8) rotate(0deg);
+      animation: floatUp linear forwards;
+    }
+
+    @keyframes floatUp{
+      0%{ opacity:0; transform: translate(var(--x), 20px) scale(.8) rotate(0deg)}
+      10%{ opacity:1 }
+      90%{ opacity:1 }
+      100%{ opacity:0; transform: translate(var(--x), -110vh) scale(1.8) rotate(15deg)}
+    }
+
+    @keyframes pulse{
+      0%,100%{ transform: scale(1) }
+      50%{ transform: scale(1.12) }
+    }
+
+    .badge{
+      position:fixed; top:12px; inset-inline:12px auto; font-size:12px; opacity:.6
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <div class="heart-big">❤️</div>
+      <h1 id="msg">أحبك</h1>
+      <div class="sub" id="sub">قلوب كتير لأجلك ✨</div>
+      <div class="from" id="from"></div>
+    </div>
+    <div class="hearts" id="hearts"></div>
+  </div>
+
+  <div class="controls">
+    <button id="copy">نسخ الرابط</button>
+    <button id="burst">زِيد القلوب 💕</button>
+    <button id="reset">إعادة التشغيل</button>
+  </div>
+
+  <div class="badge">يمكنك تخصيص الرسالة بإضافة ?text=...&from=... للرابط</div>
+
+  <script>
+    // --- تخصيص النص من باراميترات الرابط ---
+    const $ = sel => document.querySelector(sel);
+    const params = new URLSearchParams(location.search);
+    const text = params.get('text');
+    const from = params.get('from');
+
+    if(text){
+      $('#msg').textContent = decodeURIComponent(text);
+      document.title = decodeURIComponent(text) + ' ❤️';
+    }
+    if(from){
+      $('#from').textContent = '— من ' + decodeURIComponent(from);
+    }
+
+    // --- توليد القلوب المتطايرة ---
+    const hearts = $('#hearts');
+
+    function spawnHeart({ x = Math.random() * 100, duration = 5000, size = 14 } = {}){
+      const el = document.createElement('div');
+      el.className = 'heart';
+      el.style.left = x + 'vw';
+      el.style.setProperty('--x', `calc(${x}vw - 50vw)`);
+      el.style.animationDuration = duration + 'ms';
+      el.style.fontSize = size + 'px';
+      el.innerText = Math.random() < 0.12 ? '💖' : (Math.random() < 0.5 ? '❤️' : '💗');
+      hearts.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+
+    // سيل قلوب هادئ + نبضة افتتاحية
+    function gentleFlow(){
+      let t = 0;
+      const base = setInterval(() => {
+        spawnHeart({ duration: 5000 + Math.random()*2500, size: 14 + Math.random()*10 });
+        if(++t % 12 === 0) spawnHeart({ x: 50 + (Math.random()*10 - 5), duration: 4200, size: 20 });
+      }, 260);
+      return () => clearInterval(base);
+    }
+
+    function burst(n = 40){
+      const now = Date.now();
+      for(let i=0; i<n; i++){
+        const d = 2000 + Math.random()*1800;
+        const x = 10 + Math.random()*80;
+        const s = 14 + Math.random()*22;
+        setTimeout(() => spawnHeart({ x, duration:d, size:s }), Math.random()*600);
+      }
+    }
+
+    let stopFlow = gentleFlow();
+    burst(30);
+
+    // --- الأزرار ---
+    $('#copy').addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(location.href);
+        flash('تم نسخ الرابط ✔');
+      }catch{ flash('انسخ الرابط من شريط العنوان 😊'); }
+    });
+
+    $('#burst').addEventListener('click', () => burst(50));
+
+    $('#reset').addEventListener('click', () => {
+      hearts.innerHTML = '';
+      stopFlow();
+      stopFlow = gentleFlow();
+      burst(24);
+    });
+
+    function flash(txt){
+      const b = document.createElement('div');
+      b.textContent = txt;
+      Object.assign(b.style, {
+        position:'fixed', insetInline:'50%', transform:'translateX(-50%)', bottom:'70px',
+        background:'rgba(0,0,0,.4)', color:'#fff', padding:'8px 14px', borderRadius:'14px',
+        border:'1px solid rgba(255,255,255,.2)', backdropFilter:'blur(6px)', fontWeight:'700',
+        zIndex:9999, transition:'opacity .6s ease', opacity:'1'
+      });
+      document.body.appendChild(b);
+      setTimeout(()=> b.style.opacity='0', 1200);
+      setTimeout(()=> b.remove(), 2000);
+    }
+  </script>
+</body>
+</html>
